@@ -22,3 +22,9 @@ func CreateBlock(data string, prevHash []byte) *Block {
 	block.DriveHash()
 	return block
 }
+
+func (chain *BlockChain) AddBlock(data string) {
+	prevBlock := chain.Blocks[len(chain.Blocks)-1]
+	newBlock := CreateBlock(data, prevBlock.PrevHash)
+	chain.Blocks = append(chain.Blocks, newBlock)
+}
