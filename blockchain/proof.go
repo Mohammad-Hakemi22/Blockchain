@@ -3,13 +3,14 @@ package blockchain
 import (
 	"bytes"
 	"crypto/sha256"
+	"fmt"
 	"math"
 	"math/big"
 
 	"github.com/mohammad-hakemi22/blockchain/utility"
 )
 
-const Difficulty = 12
+const Difficulty = 18
 
 type ProofOfWork struct {
 	Block  *Block
@@ -37,7 +38,8 @@ func (pow *ProofOfWork) Run() (int, []byte) {
 
 	for nonce < math.MaxInt64 {
 		data := pow.InitDate(nonce)
-		hash := sha256.Sum256(data)
+		hash = sha256.Sum256(data)
+		fmt.Printf("\r%x", hash)
 		intHash.SetBytes(hash[:])
 		if intHash.Cmp(pow.Target) == -1 {
 			break
@@ -45,6 +47,7 @@ func (pow *ProofOfWork) Run() (int, []byte) {
 			nonce = nonce + 1
 		}
 	}
+	fmt.Println()
 	return nonce, hash[:]
 }
 
