@@ -47,3 +47,11 @@ func (pow *ProofOfWork) Run() (int, []byte) {
 	}
 	return nonce, hash[:]
 }
+
+func (pow *ProofOfWork) Validate() bool {
+	var intHash big.Int
+	data := pow.InitDate(pow.Block.Nonce)
+	hash := sha256.Sum256(data)
+	intHash.SetBytes(hash[:])
+	return intHash.Cmp(pow.Target) == -1
+}
