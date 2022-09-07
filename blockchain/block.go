@@ -1,5 +1,12 @@
 package blockchain
 
+import (
+	"bytes"
+	"encoding/gob"
+
+	"github.com/mohammad-hakemi22/blockchain/utility"
+)
+
 type Block struct {
 	Hash     []byte
 	Data     []byte
@@ -28,4 +35,20 @@ func GenesisBlock() *Block {
 
 func InitBlockChain() *BlockChain {
 	return &BlockChain{[]*Block{GenesisBlock()}}
+}
+
+func (b *Block) Serialize() []byte {
+	var res bytes.Buffer
+	encoder := gob.NewEncoder(&res)
+	err := encoder.Encode(b)
+	utility.ErrorHandler("something wrong in block encoding proccess", err)
+	return res.Bytes()
+}
+
+func Deserialize(data []byte) *Block {
+	var block Block
+	decoder := gob.NewDecoder(bytes.NewReader(data))
+	err := decoder.Decode(&block)
+	utility.ErrorHandler("something wrong in block decoding proccess", err)
+	return &block
 }
