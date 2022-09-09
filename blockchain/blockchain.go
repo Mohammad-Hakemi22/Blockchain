@@ -1,9 +1,11 @@
 package blockchain
 
 import (
+	"encoding/hex"
 	"fmt"
 	"os"
 	"runtime"
+	"strconv"
 
 	badger "github.com/dgraph-io/badger/v3"
 	"github.com/mohammad-hakemi22/blockchain/utility"
@@ -128,4 +130,42 @@ func (iter *BlockchainIterator) Next() *Block {
 	utility.ErrorHandler("can't get blocks from database", err)
 	iter.CurrentHash = block.PrevHash
 	return block
+}
+
+func (chain *BlockChain) FindUnspentTransactions(address string) []Transaction {
+	var unspentTxs []Transaction
+	spentTxs := make(map[string][]int)
+	iter := chain.Iterator()
+
+	for {
+		block := iter.Next()
+		for _, tx := range block.Transactions {
+			txID := hex.EncodeToString(tx.ID)
+		Output:
+			for outIdx, out := range tx.Output {
+				if spentTxs[txID] != nil {
+					for _, spentOut := range spentTxs[txID] {
+						if spentOut == outIdx {
+							continue Output
+						}
+					}
+				}
+				if out.CanBeUnlock(address) {
+					unspentTxs = append(unspentTxs, *tx)
+				}
+			}
+			if !tx.IsCoinbase() {
+				for _, in := range tx.Input {
+					if in.CanUnlock(address) {
+						inTxID := hex.EncodeToString(in.ID)
+						spentTxs[inTxID] = append(spentTxs[inTxID], in.Out)
+					}
+				}
+			}
+		}
+		if len(block.PrevHash) == 0 {
+			break
+		}
+	}
+	return unspentTxs
 }
