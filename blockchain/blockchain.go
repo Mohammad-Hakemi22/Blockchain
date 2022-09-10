@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"runtime"
-	"strconv"
 
 	badger "github.com/dgraph-io/badger/v3"
 	"github.com/mohammad-hakemi22/blockchain/utility"
@@ -168,4 +167,17 @@ func (chain *BlockChain) FindUnspentTransactions(address string) []Transaction {
 		}
 	}
 	return unspentTxs
+}
+
+func (chain *BlockChain) FindUTx(address string) []TxOutput {
+	var UTxs []TxOutput
+	unspentTransactions := chain.FindUnspentTransactions(address)
+	for _, tx := range unspentTransactions {
+		for _, out := range tx.Output {
+			if out.CanBeUnlock(address) {
+				UTxs = append(UTxs, out)
+			}
+		}
+	}
+	return UTxs
 }
