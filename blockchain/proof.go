@@ -26,7 +26,10 @@ func NewProof(b *Block) *ProofOfWork {
 func (pow *ProofOfWork) InitDate(nonce int) []byte {
 	data := bytes.Join(
 		[][]byte{
-			pow.Block.PrevHash, pow.Block.Data, utility.ToHex(int64(nonce)), utility.ToHex(int64(Difficulty))},
+			pow.Block.PrevHash,
+			pow.Block.HashTransactions(),
+			utility.ToHex(int64(nonce)),
+			utility.ToHex(int64(Difficulty))},
 		[]byte{})
 	return data
 }
