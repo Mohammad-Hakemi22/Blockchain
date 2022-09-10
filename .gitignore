@@ -33,7 +33,8 @@
 
 # Go workspace file
 go.work
-
+go.sum
+go.mod
 
 # database
 tmp
