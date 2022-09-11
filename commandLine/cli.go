@@ -120,6 +120,7 @@ func (cli *CommandLine) Run() {
 			sendCmd.Usage()
 			runtime.Goexit()
 		}
+
 		cli.send(*sendFrom, *sendTo, *sendAmount)
 	}
 	if printChainCmd.Parsed() {
