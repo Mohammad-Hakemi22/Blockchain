@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"crypto/sha256"
 	"encoding/gob"
+	"encoding/hex"
+	"errors"
 	"fmt"
 
 	"github.com/mohammad-hakemi22/blockchain/utility"
@@ -57,6 +59,30 @@ func CoinbaseTx(to, data string) *Transaction {
 	txout := TxOutput{Value: 100, PubKey: to}
 
 	tx := Transaction{nil, []TxInput{txin}, []TxOutput{txout}}
+	tx.SetID()
+	return &tx
+}
+
+func NewTransaction(from, to string, amount int, chain *BlockChain) *Transaction {
+	var inputs []TxInput
+	var outputs []TxOutput
+	acc, validOutputs := chain.FindSpendableOutputs(from, amount)
+	if acc < amount {
+		utility.ErrorHandler("not enough funds", errors.New("not enough funds"))
+	}
+	for txid, outs := range validOutputs {
+		txID, err := hex.DecodeString(txid)
+		utility.ErrorHandler("can't decode tx id", err)
+		for _, out := range outs {
+			input := TxInput{txID, out, from}
+			inputs = append(inputs, input)
+		}
+	}
+	outputs = append(outputs, TxOutput{amount, to})
+	if acc > amount {
+		outputs = append(outputs, TxOutput{acc - amount, to})
+	}
+	tx := Transaction{nil, inputs, outputs}
 	tx.SetID()
 	return &tx
 }
