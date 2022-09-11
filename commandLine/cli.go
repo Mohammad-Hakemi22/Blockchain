@@ -71,28 +71,56 @@ func (cli *CommandLine) createBlockchain(address string) {
 
 func (cli *CommandLine) Run() {
 	cli.ValidateArgs()
-	addBlockCmd := flag.NewFlagSet("add", flag.ExitOnError)
+	getBalanceCmd := flag.NewFlagSet("getbalance", flag.ExitOnError)
+	createBlockchainCmd := flag.NewFlagSet("createblockchain", flag.ExitOnError)
+	sendCmd := flag.NewFlagSet("send", flag.ExitOnError)
 	printChainCmd := flag.NewFlagSet("print", flag.ExitOnError)
-	addBlockData := addBlockCmd.String("block", "", "Block data")
+
+	getBalanceAddress := getBalanceCmd.String("address", "", "Balance address")
+	createBlockchainAddress := createBlockchainCmd.String("address", "", "Create blockchain address")
+	sendFrom := sendCmd.String("from", "", "Source address")
+	sendTo := sendCmd.String("to", "", "Destination address")
+	sendAmount := sendCmd.Int("amount", 0, "Amount to send")
+
 
 	switch os.Args[1] {
-	case "add":
-		err := addBlockCmd.Parse(os.Args[2:])
+	case "getbalance":
+		err := getBalanceCmd.Parse(os.Args[2:])
 		utility.ErrorHandler("can't parse args", err)
 	case "print":
 		err := printChainCmd.Parse(os.Args[2:])
+		utility.ErrorHandler("can't parse args", err)
+	case "createblockchain":
+		err := createBlockchainCmd.Parse(os.Args[2:])
+		utility.ErrorHandler("can't parse args", err)
+	case "send":
+		err := sendCmd.Parse(os.Args[2:])
 		utility.ErrorHandler("can't parse args", err)
 	default:
 		cli.PrintHelp()
 		runtime.Goexit()
 	}
 
-	if addBlockCmd.Parsed() {
-		if *addBlockData == "" {
-			addBlockCmd.Usage()
+	if getBalanceCmd.Parsed() {
+		if *getBalanceAddress == "" {
+			getBalanceCmd.Usage()
 			runtime.Goexit()
 		}
-		cli.AddBlock(*addBlockData)
+		cli.getBalance(*getBalanceAddress)
+	}
+	if createBlockchainCmd.Parsed() {
+		if *createBlockchainAddress == "" {
+			createBlockchainCmd.Usage()
+			runtime.Goexit()
+		}
+		cli.createBlockchain(*createBlockchainAddress)
+	}
+	if sendCmd.Parsed() {
+		if *sendFrom == "" || *sendTo == "" || *sendAmount <= 0 {
+			sendCmd.Usage()
+			runtime.Goexit()
+		}
+		cli.send(*sendFrom, *sendTo, *sendAmount)
 	}
 	if printChainCmd.Parsed() {
 		cli.PrintChain()
