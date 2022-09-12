@@ -10,7 +10,7 @@ import (
 	"github.com/mohammad-hakemi22/blockchain/utility"
 )
 
-const Difficulty = 18
+const Difficulty = 12
 
 type ProofOfWork struct {
 	Block  *Block
