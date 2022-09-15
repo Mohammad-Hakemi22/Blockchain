@@ -40,3 +40,10 @@ func (ws *Wallets) LoadFile() error {
 	ws.Wallets = wallets.Wallets
 	return nil
 }
+
+func CreateWallets() (*Wallets, error) {
+	var wallets = Wallets{}
+	wallets.Wallets = make(map[string]*Wallet)
+	err := wallets.LoadFile()
+	return &wallets, err
+}
