@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/elliptic"
 	"encoding/gob"
+	"fmt"
 	"io/ioutil"
 	"os"
 
@@ -51,6 +52,13 @@ func (ws *Wallets) GetAllAddresses() []string {
 		addresses = append(addresses, address)
 	}
 	return addresses
+}
+
+func (ws *Wallets) AddWallet() string {
+	wallet := MakeWallet()
+	address := fmt.Sprintf("%v", wallet.Address())
+	ws.Wallets[address] = wallet
+	return address
 }
 
 func CreateWallets() (*Wallets, error) {
