@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"crypto/elliptic"
 	"encoding/gob"
-	"fmt"
 	"io/ioutil"
 	"os"
 
@@ -34,8 +33,8 @@ func (ws *Wallets) LoadFile() error {
 	var wallets Wallets
 	fileContent, err := ioutil.ReadFile(walletFile)
 	utility.ErrorHandler("can't load wallets file", err)
-	decoder := gob.NewDecoder(bytes.NewReader(fileContent))
 	gob.Register(elliptic.P256())
+	decoder := gob.NewDecoder(bytes.NewReader(fileContent))
 	err = decoder.Decode(&wallets)
 	utility.ErrorHandler("can't decode wallets content", err)
 	ws.Wallets = wallets.Wallets
@@ -56,7 +55,7 @@ func (ws *Wallets) GetAllAddresses() []string {
 
 func (ws *Wallets) AddWallet() string {
 	wallet := MakeWallet()
-	address := fmt.Sprintf("%v", wallet.Address())
+	address := string(wallet.Address())
 	ws.Wallets[address] = wallet
 	return address
 }
