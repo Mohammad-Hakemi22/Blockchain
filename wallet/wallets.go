@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"crypto/elliptic"
 	"encoding/gob"
-	"io/ioutil"
 	"os"
 
 	"github.com/mohammad-hakemi22/blockchain/utility"
@@ -22,7 +21,7 @@ func (ws *Wallets) SaveFile() {
 	encoder := gob.NewEncoder(&content)
 	err := encoder.Encode(ws)
 	utility.ErrorHandler("can't encode wallets", err)
-	err = ioutil.WriteFile(walletFile, content.Bytes(), 0644)
+	err = os.WriteFile(walletFile, content.Bytes(), 0644)
 	utility.ErrorHandler("can't write wallets file", err)
 }
 
@@ -31,12 +30,14 @@ func (ws *Wallets) LoadFile() error {
 		return err
 	}
 	var wallets Wallets
-	fileContent, err := ioutil.ReadFile(walletFile)
+	fileContent, err := os.ReadFile(walletFile)
 	utility.ErrorHandler("can't load wallets file", err)
 	gob.Register(elliptic.P256())
 	decoder := gob.NewDecoder(bytes.NewReader(fileContent))
 	err = decoder.Decode(&wallets)
-	utility.ErrorHandler("can't decode wallets content", err)
+	if err != nil {
+		return err
+	}
 	ws.Wallets = wallets.Wallets
 	return nil
 }
